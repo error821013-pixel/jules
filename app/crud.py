@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from . import models, schemas, auth
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 
 def get_user_by_username(db: Session, username: str):
     return db.query(models.User).filter(models.User.username == username).first()
@@ -25,13 +25,32 @@ def create_pc(db: Session, pc: schemas.PCBase):
     return db_pc
 
 def create_booking(db: Session, booking: schemas.BookingCreate, user_id: int):
+    # 1. Validate duration
+    if booking.end_time <= booking.start_time:
+        return None
+
+    # 2. Check PC existence
     pc = db.query(models.PC).filter(models.PC.id == booking.pc_id).first()
     if not pc:
+        return None
+
+    # 3. Check for overlapping bookings for this PC
+    overlap = db.query(models.Booking).filter(
+        models.Booking.pc_id == booking.pc_id,
+        or_(
+            and_(models.Booking.start_time <= booking.start_time, models.Booking.end_time > booking.start_time),
+            and_(models.Booking.start_time < booking.end_time, models.Booking.end_time >= booking.end_time),
+            and_(models.Booking.start_time >= booking.start_time, models.Booking.end_time <= booking.end_time)
+        )
+    ).first()
+
+    if overlap:
         return None
 
     duration = (booking.end_time - booking.start_time).total_seconds() / 3600
     total_price = duration * pc.hourly_rate
 
+    # 4. Check user balance
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user.balance < total_price:
         return None
