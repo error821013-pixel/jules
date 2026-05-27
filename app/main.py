@@ -1,18 +1,45 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List
 
 from . import models, schemas, crud, auth, database
 from .database import engine, get_db
 
-models.Base.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: create tables
+    models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Gaming Club")
+    # Seed data
+    db = next(database.get_db())
+    try:
+        if not crud.get_pcs(db):
+            crud.create_pc(db, schemas.PCBase(name="PC 1 (Standard)", category="Standard", hourly_rate=50.0))
+            crud.create_pc(db, schemas.PCBase(name="PC 2 (Standard)", category="Standard", hourly_rate=50.0))
+            crud.create_pc(db, schemas.PCBase(name="PC 3 (VIP)", category="VIP", hourly_rate=100.0))
+            crud.create_pc(db, schemas.PCBase(name="PC 4 (Bootcamp)", category="Bootcamp", hourly_rate=150.0))
+
+        if not crud.get_user_by_username(db, "admin"):
+            admin_user = models.User(
+                username="admin",
+                hashed_password=auth.get_password_hash("admin123"),
+                is_admin=True
+            )
+            db.add(admin_user)
+            db.commit()
+    finally:
+        db.close()
+
+    yield
+    # Shutdown logic (if any)
+
+app = FastAPI(title="Gaming Club", lifespan=lifespan)
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
@@ -41,7 +68,6 @@ async def get_current_user_optional(request: Request, db: Session = Depends(get_
     if not token:
         return None
     try:
-        # Check if it starts with "Bearer "
         if token.startswith("Bearer "):
             token = token.split(" ")[1]
         payload = auth.decode_token(token)
@@ -141,23 +167,3 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
 @app.get("/pcs/", response_model=List[schemas.PC])
 def read_pcs(db: Session = Depends(get_db)):
     return crud.get_pcs(db)
-
-# Seed PCs if empty
-@app.on_event("startup")
-def startup_populate_db():
-    db = next(database.get_db())
-    if not crud.get_pcs(db):
-        crud.create_pc(db, schemas.PCBase(name="PC 1 (Standard)", category="Standard", hourly_rate=50.0))
-        crud.create_pc(db, schemas.PCBase(name="PC 2 (Standard)", category="Standard", hourly_rate=50.0))
-        crud.create_pc(db, schemas.PCBase(name="PC 3 (VIP)", category="VIP", hourly_rate=100.0))
-        crud.create_pc(db, schemas.PCBase(name="PC 4 (Bootcamp)", category="Bootcamp", hourly_rate=150.0))
-
-    # Create admin user if not exists
-    if not crud.get_user_by_username(db, "admin"):
-        admin_user = models.User(
-            username="admin",
-            hashed_password=auth.get_password_hash("admin123"),
-            is_admin=True
-        )
-        db.add(admin_user)
-        db.commit()

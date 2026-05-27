@@ -26,7 +26,7 @@ A full-fledged web application for a computer/gaming club featuring user authent
     ```
 
 2.  **Environment Variables:**
-    Set `DATABASE_URL` (defaults to `sqlite:///./test.db` for local testing).
+    Set `DATABASE_URL` (defaults to `sqlite:///./club.db` for local testing).
 
 3.  **Run the application:**
     ```bash

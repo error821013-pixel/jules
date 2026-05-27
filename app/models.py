@@ -1,51 +1,53 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql import func
 from .database import Base
+from datetime import datetime
+from typing import List
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    balance = Column(Float, default=0.0)
-    points = Column(Integer, default=0)
-    is_admin = Column(Boolean, default=False)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    username: Mapped[str] = mapped_column(String, unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String)
+    balance: Mapped[float] = mapped_column(Float, default=0.0)
+    points: Mapped[int] = mapped_column(Integer, default=0)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    bookings = relationship("Booking", back_populates="user")
-    transactions = relationship("Transaction", back_populates="user")
+    bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="user")
+    transactions: Mapped[List["Transaction"]] = relationship("Transaction", back_populates="user")
 
 class PC(Base):
     __tablename__ = "pcs"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    category = Column(String) # Standard, VIP, Bootcamp
-    hourly_rate = Column(Float)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String, unique=True, index=True)
+    category: Mapped[str] = mapped_column(String) # Standard, VIP, Bootcamp
+    hourly_rate: Mapped[float] = mapped_column(Float)
 
-    bookings = relationship("Booking", back_populates="pc")
+    bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="pc")
 
 class Booking(Base):
     __tablename__ = "bookings"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    pc_id = Column(Integer, ForeignKey("pcs.id"))
-    start_time = Column(DateTime)
-    end_time = Column(DateTime)
-    total_price = Column(Float)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    pc_id: Mapped[int] = mapped_column(ForeignKey("pcs.id"))
+    start_time: Mapped[datetime] = mapped_column(DateTime)
+    end_time: Mapped[datetime] = mapped_column(DateTime)
+    total_price: Mapped[float] = mapped_column(Float)
 
-    user = relationship("User", back_populates="bookings")
-    pc = relationship("PC", back_populates="bookings")
+    user: Mapped["User"] = relationship("User", back_populates="bookings")
+    pc: Mapped["PC"] = relationship("PC", back_populates="bookings")
 
 class Transaction(Base):
     __tablename__ = "transactions"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    amount = Column(Float)
-    type = Column(String) # deposit, booking
-    timestamp = Column(DateTime, server_default=func.now())
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    amount: Mapped[float] = mapped_column(Float)
+    type: Mapped[str] = mapped_column(String) # deposit, booking
+    timestamp: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
-    user = relationship("User", back_populates="transactions")
+    user: Mapped["User"] = relationship("User", back_populates="transactions")
