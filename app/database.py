@@ -7,9 +7,11 @@ SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://diplom:7896@12
 # Fix for potential UnicodeDecodeError on Windows when system locale is not UTF-8
 if os.name == 'nt':
     os.environ["PGCLIENTENCODING"] = "UTF8"
+    # Force English error messages from PostgreSQL to avoid decoding issues
+    os.environ["LC_ALL"] = "C"
 
 # Use check_same_thread: False for SQLite
-connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {"client_encoding": "utf8"}
+connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args=connect_args
