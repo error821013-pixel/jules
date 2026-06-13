@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}О нас - Gaming Club{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <section class="text-center">
+        <h1 class="text-5xl font-black mb-4 tracking-tight">ЛУЧШИЙ <span class="gaming-accent">ИГРОВОЙ ОПЫТ</span></h1>
+        <p class="text-xl text-gray-400 max-w-2xl mx-auto">Премиальное оборудование, высокоскоростной интернет и атмосфера, созданная для чемпионов. Присоединяйся к элите.</p>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div>
+            <h2 class="text-3xl font-bold mb-4 border-l-4 border-red-600 pl-4">ТОПОВОЕ ЖЕЛЕЗО</h2>
+            <p class="text-gray-300 leading-relaxed">
+                Наш клуб оснащен новейшими видеокартами NVIDIA RTX 4090, процессорами Intel Core i9 и мониторами 360 Гц.
+                Будь вы обычным игроком или профессиональным киберспортсменом, мы предоставим вам инструменты для доминирования.
+            </p>
+            <ul class="mt-4 space-y-2 text-gray-400">
+                <li>• Видеокарты: NVIDIA GeForce RTX 4090 / 4080</li>
+                <li>• Процессоры: Intel Core i9-13900K</li>
+                <li>• Мониторы: ASUS ROG Swift 360Hz</li>
+                <li>• Периферия: Линейка Logitech G Pro X</li>
+            </ul>
+        </div>
+        <div class="bg-gray-900 aspect-video rounded-lg flex items-center justify-center border border-gray-800">
+            <span class="text-gray-700 italic">Фото интерьера</span>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-900 p-6 rounded border-b-2 border-red-600">
+            <h3 class="text-xl font-bold mb-2">STANDARD ZONE</h3>
+            <p class="text-gray-400">Отличная производительность для повседневных игр и киберспортивных дисциплин.</p>
+        </div>
+        <div class="bg-gray-900 p-6 rounded border-b-2 border-red-600">
+            <h3 class="text-xl font-bold mb-2">VIP ZONE</h3>
+            <p class="text-gray-400">Изолированные кабинки с премиальным комфортом и ультрасовременным оборудованием.</p>
+        </div>
+        <div class="bg-gray-900 p-6 rounded border-b-2 border-red-600">
+            <h3 class="text-xl font-bold mb-2">BOOTCAMP</h3>
+            <p class="text-gray-400">Специальные комнаты для тренировок команд и подготовки к турнирам.</p>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль - Gaming Club{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- User Stats -->
+    <div class="lg:col-span-1 space-y-6">
+        <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+            <h2 class="text-2xl font-black mb-4 uppercase">Профиль <span class="gaming-accent">Пользователя</span></h2>
+            <div class="space-y-4">
+                <div>
+                    <p class="text-gray-500 text-xs uppercase font-bold">Имя пользователя</p>
+                    <p class="text-xl font-bold">{{ user.username }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-xs uppercase font-bold">Баланс</p>
+                    <p class="text-3xl font-black text-green-500">{{ "%.2f"|format(user.balance) }} руб.</p>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-xs uppercase font-bold">Бонусные баллы</p>
+                    <p class="text-xl font-bold text-red-500">{{ user.points }} pts</p>
+                </div>
+            </div>
+
+            <form action="/deposit" method="post" class="mt-8 pt-8 border-t border-gray-800">
+                <p class="text-gray-500 text-xs uppercase font-bold mb-2">Пополнить баланс</p>
+                <div class="flex space-x-2">
+                    <input type="number" name="amount" step="0.01" min="1" value="100" class="flex-1 bg-black border border-gray-700 rounded px-3 py-1 outline-none">
+                    <button type="submit" class="btn-primary py-1">ДОБАВИТЬ</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+            <h3 class="text-xl font-black mb-4 uppercase">История посещений</h3>
+            <div class="space-y-3 max-h-64 overflow-y-auto">
+                {% for booking in bookings|sort(attribute='start_time', reverse=True) %}
+                <div class="border-l-2 border-red-600 pl-3 py-1 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-bold">{{ booking.pc.name if booking.pc else "ПК #" ~ booking.pc_id }}</p>
+                        <p class="text-xs text-gray-500">{{ booking.start_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p class="text-xs text-gray-400">{{ "%.2f"|format(booking.total_price) }} руб.</p>
+                    </div>
+                    <button onclick="cancelBooking({{ booking.id }})" class="text-xs text-red-500 hover:underline">Отмена</button>
+                </div>
+                {% else %}
+                <p class="text-gray-600 italic">Пока нет бронирований.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking System -->
+    <div class="lg:col-span-2">
+        <div class="bg-gray-900 p-8 rounded-lg border border-red-600">
+            <h2 class="text-3xl font-black mb-6 uppercase">Забронируй свой <span class="gaming-accent">Сеанс</span></h2>
+
+            <form id="bookingForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 uppercase mb-2">Выберите ПК</label>
+                        <select id="pc_id" required class="w-full bg-black border border-gray-700 rounded px-4 py-2 outline-none focus:border-red-600">
+                            {% for pc in pcs %}
+                            <option value="{{ pc.id }}" data-rate="{{ pc.hourly_rate }}">{{ pc.name }} ({{ pc.hourly_rate }} руб./час)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 uppercase mb-2">Длительность (Часов)</label>
+                        <input type="number" id="duration" min="1" max="24" value="1" required class="w-full bg-black border border-gray-700 rounded px-4 py-2 outline-none focus:border-red-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-400 uppercase mb-2">Время начала</label>
+                        <input type="datetime-local" id="start_time" required class="w-full bg-black border border-gray-700 rounded px-4 py-2 outline-none focus:border-red-600">
+                    </div>
+                    <div class="bg-black p-4 rounded border border-gray-800 flex flex-col justify-center">
+                        <p class="text-gray-500 text-xs uppercase font-bold">Ориентировочная стоимость</p>
+                        <p id="costDisplay" class="text-4xl font-black text-red-500">50.00 руб.</p>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full btn-primary py-4 text-xl uppercase tracking-tighter font-black">Забронировать</button>
+            </form>
+            <div id="bookingResult" class="hidden mt-4 p-4 rounded text-center font-bold"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/booking.js"></script>
+<script>
+    // Set default start time to now
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('start_time').value = now.toISOString().slice(0, 16);
+
+    async function cancelBooking(bookingId) {
+        if (!confirm('Вы уверены, что хотите отменить бронирование?')) return;
+
+        const response = await fetch(`/bookings/${bookingId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert('Ошибка при отмене бронирования');
+        }
+    }
+</script>
+{% endblock %}

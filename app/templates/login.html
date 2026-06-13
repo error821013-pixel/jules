@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Вход - Gaming Club{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-gray-900 p-8 rounded-lg border border-gray-800">
+    <h2 class="text-3xl font-black mb-6 text-center uppercase tracking-tighter">Войди на <span class="gaming-accent">Арену</span></h2>
+    <div id="error" class="hidden bg-red-900 border border-red-700 text-red-100 px-4 py-2 rounded mb-4"></div>
+
+    <form id="loginForm" class="space-y-4">
+        <div>
+            <label class="block text-sm font-bold text-gray-400 uppercase mb-1">Имя пользователя</label>
+            <input type="text" id="username" required class="w-full bg-black border border-gray-700 rounded px-4 py-2 focus:border-red-600 outline-none">
+        </div>
+        <div>
+            <label class="block text-sm font-bold text-gray-400 uppercase mb-1">Пароль</label>
+            <input type="password" id="password" required class="w-full bg-black border border-gray-700 rounded px-4 py-2 focus:border-red-600 outline-none">
+        </div>
+        <div class="flex space-x-4 pt-4">
+            <button type="submit" class="flex-1 btn-primary uppercase tracking-widest">Войти</button>
+            <button type="button" id="registerBtn" class="flex-1 border border-red-600 text-red-600 font-bold py-2 rounded hover:bg-red-600 hover:text-white transition uppercase tracking-widest">Регистрация</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('loginForm');
+    const errorDiv = document.getElementById('error');
+    const registerBtn = document.getElementById('registerBtn');
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('username', document.getElementById('username').value);
+        formData.append('password', document.getElementById('password').value);
+
+        const response = await fetch('/token', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            document.cookie = `access_token=Bearer ${data.access_token}; path=/`;
+            window.location.href = '/profile';
+        } else {
+            const data = await response.json();
+            errorDiv.textContent = data.detail || 'Ошибка входа';
+            errorDiv.classList.remove('hidden');
+        }
+    };
+
+    registerBtn.onclick = async () => {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        if (!username || !password) {
+            errorDiv.textContent = 'Пожалуйста, введите имя пользователя и пароль';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+
+        const response = await fetch('/users/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            errorDiv.textContent = 'Регистрация успешна! Теперь вы можете войти.';
+            errorDiv.classList.remove('hidden', 'bg-red-900', 'border-red-700', 'text-red-100');
+            errorDiv.classList.add('bg-green-900', 'border-green-700', 'text-green-100');
+        } else {
+            const data = await response.json();
+            errorDiv.textContent = data.detail || 'Ошибка регистрации';
+            errorDiv.classList.remove('hidden');
+        }
+    };
+</script>
+{% endblock %}
