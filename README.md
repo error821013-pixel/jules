@@ -26,9 +26,16 @@ A full-fledged web application for a computer/gaming club featuring user authent
     ```
 
 2.  **Environment Variables:**
-    Set `DATABASE_URL` (defaults to `sqlite:///./club.db` for local testing).
+    To connect a PostgreSQL database, set the `DATABASE_URL` environment variable:
+    ```bash
+    export DATABASE_URL="postgresql://user:password@host:port/dbname"
+    ```
+    If not set, it defaults to `sqlite:///./club.db` for local testing.
 
-3.  **Run the application:**
+3.  **Database Migration (PostgreSQL):**
+    If you are using PostgreSQL, you should run the queries in `schema.sql` to initialize your database tables.
+
+4.  **Run the application:**
     ```bash
     uvicorn app.main:app --reload
     ```
