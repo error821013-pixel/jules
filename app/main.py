@@ -14,10 +14,21 @@ from .database import engine, get_db
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: create tables
-    models.Base.metadata.create_all(bind=engine)
+    try:
+        models.Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Error connecting to database: {e}")
+        # In a real app we might want to exit here, but let's try to proceed
+        # so the user can see the error in the console and troubleshoot DB status.
 
     # Seed data
-    db = next(database.get_db())
+    try:
+        db = next(database.get_db())
+    except Exception as e:
+        print(f"Could not get DB session: {e}")
+        yield
+        return
+
     try:
         if not crud.get_pcs(db):
             crud.create_pc(db, schemas.PCBase(name="ПК 1 (Standard)", category="Standard", hourly_rate=50.0))
