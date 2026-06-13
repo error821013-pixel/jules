@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gaming Club{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+        .gaming-accent {
+            color: #ff0000;
+        }
+        .gaming-bg-accent {
+            background-color: #ff0000;
+        }
+        .gaming-border-accent {
+            border-color: #ff0000;
+        }
+        .btn-primary {
+            background-color: #ff0000;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+        .nav-link {
+            color: #ffffff;
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <nav class="border-b border-gray-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold italic tracking-tighter">GAMING<span class="gaming-accent">CLUB</span></a>
+            <div class="space-x-6 flex items-center">
+                <a href="/" class="nav-link">About Us</a>
+                <a href="/location" class="nav-link">Location</a>
+                {% if user %}
+                <a href="/profile" class="nav-link">Profile</a>
+                {% if user.is_admin %}
+                <a href="/admin" class="nav-link text-red-500 font-bold">Admin</a>
+                {% endif %}
+                <button onclick="logout()" class="nav-link">Logout</button>
+                {% else %}
+                <a href="/login" class="btn-primary">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8 p-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="mt-16 border-t border-gray-800 p-8 text-center text-gray-500">
+        <p>&copy; 2023 Gaming Club. All rights reserved. <span class="gaming-accent">24/7 AGGRESSIVE GAMING.</span></p>
+    </footer>
+
+    <script>
+        function logout() {
+            document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = "/";
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

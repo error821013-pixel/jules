@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - Gaming Club{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <section class="text-center">
+        <h1 class="text-5xl font-black mb-4 tracking-tight">THE ULTIMATE <span class="gaming-accent">GAMING EXPERIENCE</span></h1>
+        <p class="text-xl text-gray-400 max-w-2xl mx-auto">Premium hardware, high-speed internet, and an atmosphere built for champions. Join the elite.</p>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div>
+            <h2 class="text-3xl font-bold mb-4 border-l-4 border-red-600 pl-4">ELITE HARDWARE</h2>
+            <p class="text-gray-300 leading-relaxed">
+                Our club is equipped with the latest NVIDIA RTX 4090 GPUs, Intel Core i9 processors, and 360Hz monitors.
+                Whether you are a casual player or a pro athlete, we provide the tools you need to dominate.
+            </p>
+            <ul class="mt-4 space-y-2 text-gray-400">
+                <li>• GPUs: NVIDIA GeForce RTX 4090 / 4080</li>
+                <li>• CPUs: Intel Core i9-13900K</li>
+                <li>• Monitors: ASUS ROG Swift 360Hz</li>
+                <li>• Peripherals: Logitech G Pro X Lineup</li>
+            </ul>
+        </div>
+        <div class="bg-gray-900 aspect-video rounded-lg flex items-center justify-center border border-gray-800">
+            <span class="text-gray-700 italic">Interior Photo Placeholder</span>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-900 p-6 rounded border-b-2 border-red-600">
+            <h3 class="text-xl font-bold mb-2">STANDARD ZONE</h3>
+            <p class="text-gray-400">Great performance for everyday gaming and esports titles.</p>
+        </div>
+        <div class="bg-gray-900 p-6 rounded border-b-2 border-red-600">
+            <h3 class="text-xl font-bold mb-2">VIP ZONE</h3>
+            <p class="text-gray-400">Isolated booths with premium comfort and ultra-high-end gear.</p>
+        </div>
+        <div class="bg-gray-900 p-6 rounded border-b-2 border-red-600">
+            <h3 class="text-xl font-bold mb-2">BOOTCAMP</h3>
+            <p class="text-gray-400">Dedicated rooms for teams to practice and prepare for tournaments.</p>
+        </div>
+    </section>
+</div>
+{% endblock %}
