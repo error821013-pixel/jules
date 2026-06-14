@@ -3,7 +3,7 @@
 -- 1. Table Creation
 
 -- Users Table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
     hashed_password VARCHAR(255) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE users (
 );
 
 -- PCs Table
-CREATE TABLE pcs (
+CREATE TABLE IF NOT EXISTS pcs (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     category VARCHAR(50) NOT NULL, -- Standard, VIP, Bootcamp
@@ -21,7 +21,7 @@ CREATE TABLE pcs (
 );
 
 -- Bookings Table
-CREATE TABLE bookings (
+CREATE TABLE IF NOT EXISTS bookings (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     pc_id INTEGER REFERENCES pcs(id) ON DELETE CASCADE,
@@ -31,7 +31,7 @@ CREATE TABLE bookings (
 );
 
 -- Transactions Table
-CREATE TABLE transactions (
+CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     amount DOUBLE PRECISION NOT NULL,
