@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS pcs (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     category VARCHAR(50) NOT NULL, -- Standard, VIP, Bootcamp
+    room VARCHAR(255) DEFAULT 'Main',
     hourly_rate DOUBLE PRECISION NOT NULL
 );
 
@@ -47,8 +48,8 @@ INSERT INTO users (username, hashed_password, balance, points, is_admin)
 VALUES ('johndoe', '$2b$12$hashedpasswordexample...', 0.0, 0, FALSE);
 
 -- Add a PC
-INSERT INTO pcs (name, category, hourly_rate)
-VALUES ('PC 1 (Standard)', 'Standard', 50.0);
+INSERT INTO pcs (name, category, room, hourly_rate)
+VALUES ('PC 1 (Standard)', 'Standard', 'Standard Room 1', 50.0);
 
 -- Create a booking
 -- Step 1: Insert booking record

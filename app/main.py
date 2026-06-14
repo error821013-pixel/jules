@@ -58,7 +58,9 @@ async def lifespan(app: FastAPI):
                 is_admin=True
             )
             db.add(admin_user)
+            db.commit()
 
+        if not crud.get_user_by_username(db, "gamer"):
             # Create a test active user
             test_user = models.User(
                 username="gamer",
@@ -68,8 +70,24 @@ async def lifespan(app: FastAPI):
             )
             db.add(test_user)
             db.commit()
+
+        print("[SUCCESS] База данных PostgreSQL успешно подключена!")
     except Exception as e:
-        print(f"Database initialization error: {e}")
+        print("\n" + "!"*60)
+        print("ВНИМАНИЕ: ОШИБКА ПОДКЛЮЧЕНИЯ К БАЗЕ ДАННЫХ!")
+        print("-" * 60)
+        print("Сайт будет работать в ограниченном режиме.")
+        print("Пожалуйста, убедитесь, что:")
+        print("1. В pgAdmin создана база данных с именем: dip")
+        print("2. Создан пользователь: diplom с паролем: 7896")
+        print("3. У пользователя diplom есть права на базу dip")
+        print("-" * 60)
+        print("Техническая информация об ошибке (может быть нечитаемой на Windows):")
+        try:
+            print(f"Тип ошибки: {type(e).__name__}")
+        except:
+            pass
+        print("!"*60 + "\n")
     finally:
         if db:
             db.close()
