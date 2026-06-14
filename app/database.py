@@ -9,6 +9,8 @@ if os.name == 'nt':
     os.environ["PGCLIENTENCODING"] = "UTF8"
     # Force English error messages from PostgreSQL to avoid decoding issues
     os.environ["LC_ALL"] = "C"
+    os.environ["LC_MESSAGES"] = "C"
+    os.environ["LANG"] = "en_US.UTF-8"
 
 # Use check_same_thread: False for SQLite
 connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
