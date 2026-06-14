@@ -58,7 +58,8 @@
 
         if (!username || !password) {
             errorDiv.textContent = 'Пожалуйста, введите имя пользователя и пароль';
-            errorDiv.classList.remove('hidden');
+            errorDiv.classList.remove('hidden', 'bg-green-900', 'border-green-700', 'text-green-100');
+            errorDiv.classList.add('bg-red-900', 'border-red-700', 'text-red-100');
             return;
         }
 
@@ -69,9 +70,20 @@
         });
 
         if (response.ok) {
-            errorDiv.textContent = 'Регистрация успешна! Теперь вы можете войти.';
-            errorDiv.classList.remove('hidden', 'bg-red-900', 'border-red-700', 'text-red-100');
-            errorDiv.classList.add('bg-green-900', 'border-green-700', 'text-green-100');
+            // Auto login after registration
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+            const loginRes = await fetch('/token', { method: 'POST', body: formData });
+            if (loginRes.ok) {
+                const data = await loginRes.json();
+                document.cookie = `access_token=Bearer ${data.access_token}; path=/`;
+                window.location.href = '/profile';
+            } else {
+                errorDiv.textContent = 'Регистрация успешна! Теперь вы можете войти.';
+                errorDiv.classList.remove('hidden', 'bg-red-900', 'border-red-700', 'text-red-100');
+                errorDiv.classList.add('bg-green-900', 'border-green-700', 'text-green-100');
+            }
         } else {
             const data = await response.json();
             errorDiv.textContent = data.detail || 'Ошибка регистрации';
