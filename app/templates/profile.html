@@ -51,18 +51,61 @@
         </div>
     </div>
 
-    <!-- Booking System -->
-    <div class="lg:col-span-2">
+    <!-- Club Map and Booking -->
+    <div class="lg:col-span-2 space-y-8">
         <div class="bg-gray-900 p-8 rounded-lg border border-red-600">
+            <h2 class="text-3xl font-black mb-6 uppercase">Карта <span class="gaming-accent">Клуба</span></h2>
+
+            <div class="space-y-8">
+                {% for zone_name, rooms in zones.items() %}
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-red-500 uppercase italic">{{ zone_name }}</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for room_name, pcs in rooms.items() %}
+                        <div class="bg-black p-4 rounded border border-gray-800">
+                            <p class="text-xs text-gray-500 uppercase font-bold mb-3">{{ room_name }}</p>
+                            <div class="flex flex-wrap gap-2">
+                                {% for pc in pcs %}
+                                <button
+                                    onclick="selectPC({{ pc.id }}, '{{ pc.name }}', {{ pc.hourly_rate }})"
+                                    class="w-10 h-10 rounded flex items-center justify-center font-bold text-xs transition-all
+                                    {% if pc.is_occupied %}bg-red-900 text-red-100 cursor-not-allowed opacity-50{% else %}bg-green-900 text-green-100 hover:bg-green-600{% endif %}"
+                                    {% if pc.is_occupied %}disabled title="Занято"{% else %}title="{{ pc.name }} - {{ pc.hourly_rate }} руб/час"{% endif %}
+                                >
+                                    {{ loop.index }}
+                                </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-8 flex items-center space-x-4 text-xs">
+                <div class="flex items-center"><div class="w-3 h-3 bg-green-900 rounded mr-2"></div> Свободно</div>
+                <div class="flex items-center"><div class="w-3 h-3 bg-red-900 rounded mr-2"></div> Занято</div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 p-8 rounded-lg border border-gray-800">
             <h2 class="text-3xl font-black mb-6 uppercase">Забронируй свой <span class="gaming-accent">Сеанс</span></h2>
 
             <form id="bookingForm" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-bold text-gray-400 uppercase mb-2">Выберите ПК</label>
+                        <label class="block text-sm font-bold text-gray-400 uppercase mb-2">Выбранный ПК</label>
                         <select id="pc_id" required class="w-full bg-black border border-gray-700 rounded px-4 py-2 outline-none focus:border-red-600">
-                            {% for pc in pcs %}
-                            <option value="{{ pc.id }}" data-rate="{{ pc.hourly_rate }}">{{ pc.name }} ({{ pc.hourly_rate }} руб./час)</option>
+                            <option value="">Выберите ПК на карте выше</option>
+                            {% for zone_name, rooms in zones.items() %}
+                                {% for room_name, pcs in rooms.items() %}
+                                    {% for pc in pcs %}
+                                        <option value="{{ pc.id }}" data-rate="{{ pc.hourly_rate }}" {% if pc.is_occupied %}disabled{% endif %}>
+                                            {{ pc.name }} ({{ pc.hourly_rate }} руб./час)
+                                        </option>
+                                    {% endfor %}
+                                {% endfor %}
                             {% endfor %}
                         </select>
                     </div>
@@ -94,6 +137,17 @@
 {% block scripts %}
 <script src="/static/js/booking.js"></script>
 <script>
+    function selectPC(id, name, rate) {
+        const select = document.getElementById('pc_id');
+        select.value = id;
+        // Trigger the updateCost function in booking.js manually
+        const event = new Event('change');
+        select.dispatchEvent(event);
+
+        // Scroll to form
+        document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
     // Set default start time to now
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());

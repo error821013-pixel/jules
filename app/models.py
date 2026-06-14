@@ -24,6 +24,7 @@ class PC(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String, unique=True, index=True)
     category: Mapped[str] = mapped_column(String) # Standard, VIP, Bootcamp
+    room: Mapped[str] = mapped_column(String, default="Main")
     hourly_rate: Mapped[float] = mapped_column(Float)
 
     bookings: Mapped[List["Booking"]] = relationship("Booking", back_populates="pc")

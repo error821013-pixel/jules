@@ -6,6 +6,10 @@ const bookingResult = document.getElementById('bookingResult');
 
 function updateCost() {
     const selectedOption = pcSelect.options[pcSelect.selectedIndex];
+    if (!selectedOption || !selectedOption.value) {
+        costDisplay.textContent = "0.00 руб.";
+        return;
+    }
     const rate = parseFloat(selectedOption.getAttribute('data-rate'));
     const duration = parseFloat(durationInput.value) || 0;
     const total = rate * duration;

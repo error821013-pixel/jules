@@ -20,18 +20,53 @@ async def lifespan(app: FastAPI):
 
         db = next(database.get_db())
         if not crud.get_pcs(db):
-            crud.create_pc(db, schemas.PCBase(name="ПК 1 (Standard)", category="Standard", hourly_rate=50.0))
-            crud.create_pc(db, schemas.PCBase(name="ПК 2 (Standard)", category="Standard", hourly_rate=50.0))
-            crud.create_pc(db, schemas.PCBase(name="ПК 3 (VIP)", category="VIP", hourly_rate=100.0))
-            crud.create_pc(db, schemas.PCBase(name="ПК 4 (Bootcamp)", category="Bootcamp", hourly_rate=150.0))
+            # Standard: 2 rooms x 10 PCs
+            for r in range(1, 3):
+                for i in range(1, 11):
+                    crud.create_pc(db, schemas.PCBase(
+                        name=f"Standard PC {i} (Room {r})",
+                        category="Standard",
+                        room=f"Standard Room {r}",
+                        hourly_rate=100.0
+                    ))
+
+            # VIP: 4 rooms x 5 PCs (User requested 20 total)
+            for r in range(1, 5):
+                for i in range(1, 6):
+                    crud.create_pc(db, schemas.PCBase(
+                        name=f"VIP PC {i} (Room {r})",
+                        category="VIP",
+                        room=f"VIP Room {r}",
+                        hourly_rate=300.0
+                    ))
+
+            # Bootcamp: 2 rooms x 3 PCs
+            for r in range(1, 3):
+                for i in range(1, 4):
+                    crud.create_pc(db, schemas.PCBase(
+                        name=f"Bootcamp PC {i} (Room {r})",
+                        category="Bootcamp",
+                        room=f"Bootcamp Room {r}",
+                        hourly_rate=500.0
+                    ))
 
         if not crud.get_user_by_username(db, "admin"):
             admin_user = models.User(
                 username="admin",
                 hashed_password=auth.get_password_hash("admin123"),
+                balance=10000.0,
                 is_admin=True
             )
             db.add(admin_user)
+
+            # Create a test active user
+            test_user = models.User(
+                username="gamer",
+                hashed_password=auth.get_password_hash("pass123"),
+                balance=5000.0,
+                is_admin=False
+            )
+            db.add(test_user)
             db.commit()
     except Exception as e:
         print(f"Database initialization error: {e}")
@@ -122,11 +157,23 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse(url="/login")
 
-    pcs = crud.get_pcs(db)
+    pcs = crud.get_pcs_with_status(db)
     bookings = crud.get_user_bookings(db, user.id)
+
+    # Group PCs by zone and room for the map
+    zones = {}
+    for pc in pcs:
+        zone = pc['category']
+        room = pc['room']
+        if zone not in zones:
+            zones[zone] = {}
+        if room not in zones[zone]:
+            zones[zone][room] = []
+        zones[zone][room].append(pc)
+
     return templates.TemplateResponse(request, "profile.html", {
         "user": user,
-        "pcs": pcs,
+        "zones": zones,
         "bookings": bookings
     })
 

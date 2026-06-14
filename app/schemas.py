@@ -25,6 +25,7 @@ class User(UserBase):
 class PCBase(BaseModel):
     name: str
     category: str
+    room: str
     hourly_rate: float
 
 class PC(PCBase):

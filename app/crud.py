@@ -88,6 +88,24 @@ def get_current_bookings(db: Session):
         models.Booking.end_time >= now
     ).all()
 
+def get_pcs_with_status(db: Session):
+    pcs = db.query(models.PC).all()
+    current_bookings = get_current_bookings(db)
+    occupied_pc_ids = [b.pc_id for b in current_bookings]
+
+    result = []
+    for pc in pcs:
+        pc_dict = {
+            "id": pc.id,
+            "name": pc.name,
+            "category": pc.category,
+            "room": pc.room,
+            "hourly_rate": pc.hourly_rate,
+            "is_occupied": pc.id in occupied_pc_ids
+        }
+        result.append(pc_dict)
+    return result
+
 def get_admin_stats(db: Session):
     total_revenue = db.query(func.sum(models.Booking.total_price)).scalar() or 0.0
     avg_check = db.query(func.avg(models.Booking.total_price)).scalar() or 0.0
