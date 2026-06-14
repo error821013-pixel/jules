@@ -159,6 +159,7 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
 
     pcs = crud.get_pcs_with_status(db)
     bookings = crud.get_user_bookings(db, user.id)
+    transactions = crud.get_user_transactions(db, user.id)
 
     # Group PCs by zone and room for the map
     zones = {}
@@ -174,7 +175,8 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(request, "profile.html", {
         "user": user,
         "zones": zones,
-        "bookings": bookings
+        "bookings": bookings,
+        "transactions": transactions
     })
 
 @app.post("/bookings/", response_model=schemas.Booking)

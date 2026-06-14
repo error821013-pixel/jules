@@ -81,6 +81,9 @@ def create_booking(db: Session, booking: schemas.BookingCreate, user_id: int):
 def get_user_bookings(db: Session, user_id: int):
     return db.query(models.Booking).filter(models.Booking.user_id == user_id).all()
 
+def get_user_transactions(db: Session, user_id: int):
+    return db.query(models.Transaction).filter(models.Transaction.user_id == user_id).order_by(models.Transaction.timestamp.desc()).all()
+
 def get_current_bookings(db: Session):
     now = datetime.utcnow()
     return db.query(models.Booking).filter(
