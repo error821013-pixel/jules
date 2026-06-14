@@ -70,6 +70,7 @@ async def lifespan(app: FastAPI):
             )
             db.add(test_user)
             db.commit()
+            print("[INFO] Создан тестовый аккаунт: gamer / pass123")
 
         print("[SUCCESS] База данных PostgreSQL успешно подключена!")
     except Exception as e:

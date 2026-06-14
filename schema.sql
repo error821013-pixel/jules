@@ -47,6 +47,11 @@ CREATE TABLE IF NOT EXISTS transactions (
 INSERT INTO users (username, hashed_password, balance, points, is_admin)
 VALUES ('johndoe', '$2b$12$hashedpasswordexample...', 0.0, 0, FALSE);
 
+-- Test gamer account (password: pass123)
+INSERT INTO users (username, hashed_password, balance, points, is_admin)
+VALUES ('gamer', '$2b$12$SwUupUm8BzWGkHa1c8ch.eIyTfb7CFYr1ciMfp7URW.zjdLnHoupe', 5000.0, 0, FALSE)
+ON CONFLICT (username) DO NOTHING;
+
 -- Add a PC
 INSERT INTO pcs (name, category, room, hourly_rate)
 VALUES ('PC 1 (Standard)', 'Standard', 'Standard Room 1', 50.0);
