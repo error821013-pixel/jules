@@ -144,6 +144,10 @@ async def get_current_user_optional(request: Request, db: Session = Depends(get_
 @app.get("/debug-db")
 async def debug_db(db: Session = Depends(get_db)):
     try:
+        # Test connection explicitly
+        from sqlalchemy import text
+        db.execute(text("SELECT 1"))
+
         users = db.query(models.User.username).all()
         pcs_count = db.query(models.PC).count()
         return {
@@ -153,7 +157,12 @@ async def debug_db(db: Session = Depends(get_db)):
             "database_url": database.SQLALCHEMY_DATABASE_URL.split("@")[-1] # Show host/db only
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        import traceback
+        return {
+            "status": "error",
+            "detail": str(e),
+            "traceback": traceback.format_exc()
+        }
 
 @app.post("/token", response_model=schemas.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):

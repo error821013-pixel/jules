@@ -6,8 +6,10 @@
 <div class="max-w-md mx-auto bg-gray-900 p-8 rounded-lg border border-gray-800">
     <h2 class="text-3xl font-black mb-6 text-center uppercase tracking-tighter">Войди на <span class="gaming-accent">Арену</span></h2>
 
-    <div id="db-warning" class="hidden bg-yellow-900 border border-yellow-700 text-yellow-100 px-4 py-2 rounded mb-4 text-xs">
-        ⚠️ Внимание: База данных не подключена. Используется временное хранилище (SQLite).
+    <div id="db-warning" class="hidden bg-yellow-900 border border-yellow-700 text-yellow-100 px-4 py-2 rounded mb-4 text-[10px] leading-tight">
+        <p class="font-bold mb-1">⚠️ ОШИБКА ПОДКЛЮЧЕНИЯ К POSTGRESQL</p>
+        <p id="db-error-detail" class="opacity-80"></p>
+        <p class="mt-1 italic text-gray-400">Проверьте, что сервер 'diplom' запущен, БД 'dip' создана и пароль '7896' верен.</p>
     </div>
 
     <div id="error" class="hidden bg-red-900 border border-red-700 text-red-100 px-4 py-2 rounded mb-4"></div>
@@ -37,9 +39,12 @@
             const data = await res.json();
             if (data.status === 'error') {
                 document.getElementById('db-warning').classList.remove('hidden');
+                document.getElementById('db-error-detail').textContent = data.detail;
+                console.error("Database Error:", data);
             }
         } catch (e) {
             document.getElementById('db-warning').classList.remove('hidden');
+            document.getElementById('db-error-detail').textContent = "Не удалось связаться с сервером API";
         }
     }
     checkDB();
