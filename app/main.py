@@ -148,7 +148,10 @@ async def read_location(request: Request, user=Depends(get_current_user_optional
     return templates.TemplateResponse(request, "location.html", {"user": user})
 
 @app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
+async def login_page(request: Request, db: Session = Depends(get_db)):
+    user = await get_current_user_optional(request, db)
+    if user:
+        return RedirectResponse(url="/profile")
     return templates.TemplateResponse(request, "login.html", {})
 
 @app.get("/profile", response_class=HTMLResponse)
