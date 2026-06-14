@@ -5,6 +5,11 @@
 {% block content %}
 <div class="max-w-md mx-auto bg-gray-900 p-8 rounded-lg border border-gray-800">
     <h2 class="text-3xl font-black mb-6 text-center uppercase tracking-tighter">Войди на <span class="gaming-accent">Арену</span></h2>
+
+    <div id="db-warning" class="hidden bg-yellow-900 border border-yellow-700 text-yellow-100 px-4 py-2 rounded mb-4 text-xs">
+        ⚠️ Внимание: База данных не подключена. Используется временное хранилище (SQLite).
+    </div>
+
     <div id="error" class="hidden bg-red-900 border border-red-700 text-red-100 px-4 py-2 rounded mb-4"></div>
 
     <form id="loginForm" class="space-y-4">
@@ -26,6 +31,19 @@
 
 {% block scripts %}
 <script>
+    async function checkDB() {
+        try {
+            const res = await fetch('/debug-db');
+            const data = await res.json();
+            if (data.status === 'error') {
+                document.getElementById('db-warning').classList.remove('hidden');
+            }
+        } catch (e) {
+            document.getElementById('db-warning').classList.remove('hidden');
+        }
+    }
+    checkDB();
+
     const form = document.getElementById('loginForm');
     const errorDiv = document.getElementById('error');
     const registerBtn = document.getElementById('registerBtn');

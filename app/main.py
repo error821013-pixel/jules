@@ -128,12 +128,33 @@ async def get_current_user_optional(request: Request, db: Session = Depends(get_
         if token.startswith("Bearer "):
             token = token.split(" ")[1]
         payload = auth.decode_token(token)
+        if not payload:
+            print("[DEBUG] Не удалось декодировать токен")
+            return None
         username = payload.get("sub")
-        return crud.get_user_by_username(db, username=username)
-    except:
+        user = crud.get_user_by_username(db, username=username)
+        if not user:
+            print(f"[DEBUG] Пользователь {username} не найден в БД")
+        return user
+    except Exception as e:
+        print(f"[DEBUG] Ошибка при получении текущего пользователя: {e}")
         return None
 
 # API Routes
+@app.get("/debug-db")
+async def debug_db(db: Session = Depends(get_db)):
+    try:
+        users = db.query(models.User.username).all()
+        pcs_count = db.query(models.PC).count()
+        return {
+            "status": "connected",
+            "users": [u.username for u in users],
+            "pcs_count": pcs_count,
+            "database_url": database.SQLALCHEMY_DATABASE_URL.split("@")[-1] # Show host/db only
+        }
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
 @app.post("/token", response_model=schemas.Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = crud.get_user_by_username(db, username=form_data.username)
