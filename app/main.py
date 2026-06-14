@@ -106,15 +106,15 @@ async def read_users_me(current_user: models.User = Depends(get_current_user)):
 # Page Routes
 @app.get("/", response_class=HTMLResponse)
 async def read_index(request: Request, user=Depends(get_current_user_optional)):
-    return templates.TemplateResponse(request=request, name="index.html", context={"user": user})
+    return templates.TemplateResponse(request, "index.html", {"user": user})
 
 @app.get("/location", response_class=HTMLResponse)
 async def read_location(request: Request, user=Depends(get_current_user_optional)):
-    return templates.TemplateResponse(request=request, name="location.html", context={"user": user})
+    return templates.TemplateResponse(request, "location.html", {"user": user})
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse(request=request, name="login.html", context={})
+    return templates.TemplateResponse(request, "login.html", {})
 
 @app.get("/profile", response_class=HTMLResponse)
 async def profile_page(request: Request, db: Session = Depends(get_db)):
@@ -124,7 +124,7 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
 
     pcs = crud.get_pcs(db)
     bookings = crud.get_user_bookings(db, user.id)
-    return templates.TemplateResponse(request=request, name="profile.html", context={
+    return templates.TemplateResponse(request, "profile.html", {
         "user": user,
         "pcs": pcs,
         "bookings": bookings
@@ -158,7 +158,7 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
 
     stats = crud.get_admin_stats(db)
     current_bookings = crud.get_current_bookings(db)
-    return templates.TemplateResponse(request=request, name="admin.html", context={
+    return templates.TemplateResponse(request, "admin.html", {
         "user": user,
         "stats": stats,
         "current_bookings": current_bookings,
