@@ -79,6 +79,13 @@
         <div class="bg-gray-900 p-8 rounded-lg border border-red-600">
             <h2 class="text-3xl font-black mb-6 uppercase">Карта <span class="gaming-accent">Клуба</span></h2>
 
+            {% if not zones %}
+            <div class="bg-black p-8 rounded border border-yellow-600 text-center">
+                <p class="text-yellow-500 font-bold mb-4">⚠️ ПК не найдены в базе данных</p>
+                <p class="text-gray-400 text-sm">Возможно, произошла ошибка при подключении к PostgreSQL или инициализации данных. Пожалуйста, убедитесь, что база данных 'dip' запущена и доступна.</p>
+            </div>
+            {% endif %}
+
             <div class="space-y-8">
                 {% for zone_name, rooms in zones.items() %}
                 <div>
