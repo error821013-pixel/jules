@@ -13,7 +13,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 # Using 127.0.0.1 to avoid common IPv6 resolution issues on Windows
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://diplom:7896@127.0.0.1:5432/dip")
+# User screenshot shows postgres@diplom, updating username to postgres
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:7896@127.0.0.1:5432/dip")
 
 # Explicitly setting client_encoding to utf8
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
