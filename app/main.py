@@ -21,10 +21,8 @@ async def lifespan(app: FastAPI):
         models.Base.metadata.create_all(bind=engine)
 
         # 2. Migration: Ensure 'room' column exists in 'pcs' table
-        # SQLAlchemy create_all doesn't add missing columns to existing tables
         try:
             with engine.connect() as conn:
-                # Check if column exists (PostgreSQL specific, but safe enough for this case)
                 result = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='pcs' AND column_name='room'"))
                 if not result.fetchone():
                     print("[INFO] Добавление недостающей колонки 'room' в таблицу 'pcs'...")
@@ -37,36 +35,41 @@ async def lifespan(app: FastAPI):
 
         # Seed PCs if none exist
         if not crud.get_pcs(db):
-            print("[INFO] Начальное наполнение базы данных компьютерами...")
-            # Standard: 2 rooms x 10 PCs
+            print("[INFO] Начальное наполнение базы данных компьютерами (сквозная нумерация 1-46)...")
+            pc_counter = 1
+
+            # Standard: 2 rooms x 10 PCs = 20
             for r in range(1, 3):
                 for i in range(1, 11):
                     crud.create_pc(db, schemas.PCBase(
-                        name=f"Standard PC {i} (Room {r})",
+                        name=f"PC {pc_counter}",
                         category="Standard",
                         room=f"Standard Room {r}",
                         hourly_rate=100.0
                     ))
+                    pc_counter += 1
 
-            # VIP: 4 rooms x 5 PCs
+            # VIP: 4 rooms x 5 PCs = 20
             for r in range(1, 5):
                 for i in range(1, 6):
                     crud.create_pc(db, schemas.PCBase(
-                        name=f"VIP PC {i} (Room {r})",
+                        name=f"PC {pc_counter}",
                         category="VIP",
                         room=f"VIP Room {r}",
                         hourly_rate=300.0
                     ))
+                    pc_counter += 1
 
-            # Bootcamp: 2 rooms x 3 PCs
+            # Bootcamp: 2 rooms x 3 PCs = 6
             for r in range(1, 3):
                 for i in range(1, 4):
                     crud.create_pc(db, schemas.PCBase(
-                        name=f"Bootcamp PC {i} (Room {r})",
+                        name=f"PC {pc_counter}",
                         category="Bootcamp",
                         room=f"Bootcamp Room {r}",
                         hourly_rate=500.0
                     ))
+                    pc_counter += 1
 
         # Seed Users
         if not crud.get_user_by_username(db, "admin"):
