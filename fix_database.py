@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, text
 from app import models, auth, schemas, database
 
 def fix():
-    print("--- ЗАПУСК ПОЛНОГО ИСПРАВЛЕНИЯ БАЗЫ ДАННЫХ (46 ПК, сквозная нумерация) ---")
+    print("--- ЗАПУСК ПОЛНОГО ИСПРАВЛЕНИЯ БАЗЫ ДАННЫХ (46 ПК, нумерация 1-46) ---")
 
     db_url = os.getenv("DATABASE_URL", "postgresql://postgres:7896@127.0.0.1:5432/dip")
     engine = create_engine(db_url)
@@ -56,14 +56,14 @@ def fix():
             db.add(admin)
             db.add(gamer)
 
-            print("5. Наполнение клуба компьютерами (46 шт, сквозная нумерация)...")
+            print("5. Наполнение клуба компьютерами (46 шт, номера 1-46)...")
             pc_counter = 1
 
             # Standard: 2 rooms x 10 PCs = 20
             for r in range(1, 3):
                 for i in range(1, 11):
                     db.add(models.PC(
-                        name=f"PC {pc_counter}",
+                        name=f"{pc_counter}",
                         category="Standard",
                         room=f"Standard Room {r}",
                         hourly_rate=100.0
@@ -74,7 +74,7 @@ def fix():
             for r in range(1, 5):
                 for i in range(1, 6):
                     db.add(models.PC(
-                        name=f"PC {pc_counter}",
+                        name=f"{pc_counter}",
                         category="VIP",
                         room=f"VIP Room {r}",
                         hourly_rate=300.0
@@ -85,7 +85,7 @@ def fix():
             for r in range(1, 3):
                 for i in range(1, 4):
                     db.add(models.PC(
-                        name=f"PC {pc_counter}",
+                        name=f"{pc_counter}",
                         category="Bootcamp",
                         room=f"Bootcamp Room {r}",
                         hourly_rate=500.0

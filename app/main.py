@@ -35,14 +35,14 @@ async def lifespan(app: FastAPI):
 
         # Seed PCs if none exist
         if not crud.get_pcs(db):
-            print("[INFO] Начальное наполнение базы данных компьютерами (сквозная нумерация 1-46)...")
+            print("[INFO] Начальное наполнение базы данных компьютерами (номера 1-46)...")
             pc_counter = 1
 
             # Standard: 2 rooms x 10 PCs = 20
             for r in range(1, 3):
                 for i in range(1, 11):
                     crud.create_pc(db, schemas.PCBase(
-                        name=f"PC {pc_counter}",
+                        name=f"{pc_counter}",
                         category="Standard",
                         room=f"Standard Room {r}",
                         hourly_rate=100.0
@@ -53,7 +53,7 @@ async def lifespan(app: FastAPI):
             for r in range(1, 5):
                 for i in range(1, 6):
                     crud.create_pc(db, schemas.PCBase(
-                        name=f"PC {pc_counter}",
+                        name=f"{pc_counter}",
                         category="VIP",
                         room=f"VIP Room {r}",
                         hourly_rate=300.0
@@ -64,7 +64,7 @@ async def lifespan(app: FastAPI):
             for r in range(1, 3):
                 for i in range(1, 4):
                     crud.create_pc(db, schemas.PCBase(
-                        name=f"PC {pc_counter}",
+                        name=f"{pc_counter}",
                         category="Bootcamp",
                         room=f"Bootcamp Room {r}",
                         hourly_rate=500.0
