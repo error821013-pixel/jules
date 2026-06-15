@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from datetime import datetime
 from typing import List
 
@@ -16,10 +17,27 @@ async def lifespan(app: FastAPI):
     # Startup: create tables and seed data
     db = None
     try:
+        # 1. Try to create all tables
         models.Base.metadata.create_all(bind=engine)
 
+        # 2. Migration: Ensure 'room' column exists in 'pcs' table
+        # SQLAlchemy create_all doesn't add missing columns to existing tables
+        try:
+            with engine.connect() as conn:
+                # Check if column exists (PostgreSQL specific, but safe enough for this case)
+                result = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='pcs' AND column_name='room'"))
+                if not result.fetchone():
+                    print("[INFO] Добавление недостающей колонки 'room' в таблицу 'pcs'...")
+                    conn.execute(text("ALTER TABLE pcs ADD COLUMN room VARCHAR(255) DEFAULT 'Main'"))
+                    conn.commit()
+        except Exception as e_mig:
+            print(f"[DEBUG] Пропущена автоматическая миграция: {e_mig}")
+
         db = next(database.get_db())
+
+        # Seed PCs if none exist
         if not crud.get_pcs(db):
+            print("[INFO] Начальное наполнение базы данных компьютерами...")
             # Standard: 2 rooms x 10 PCs
             for r in range(1, 3):
                 for i in range(1, 11):
@@ -30,7 +48,7 @@ async def lifespan(app: FastAPI):
                         hourly_rate=100.0
                     ))
 
-            # VIP: 4 rooms x 5 PCs (User requested 20 total)
+            # VIP: 4 rooms x 5 PCs
             for r in range(1, 5):
                 for i in range(1, 6):
                     crud.create_pc(db, schemas.PCBase(
@@ -50,6 +68,7 @@ async def lifespan(app: FastAPI):
                         hourly_rate=500.0
                     ))
 
+        # Seed Users
         if not crud.get_user_by_username(db, "admin"):
             admin_user = models.User(
                 username="admin",
@@ -61,7 +80,6 @@ async def lifespan(app: FastAPI):
             db.commit()
 
         if not crud.get_user_by_username(db, "gamer"):
-            # Create a test active user
             test_user = models.User(
                 username="gamer",
                 hashed_password=auth.get_password_hash("pass123"),
@@ -72,29 +90,20 @@ async def lifespan(app: FastAPI):
             db.commit()
             print("[INFO] Создан тестовый аккаунт: gamer / pass123")
 
-        print("[SUCCESS] База данных PostgreSQL успешно подключена!")
+        print("[SUCCESS] База данных PostgreSQL успешно подключена и настроена!")
     except Exception as e:
         print("\n" + "!"*60)
-        print("ВНИМАНИЕ: ОШИБКА ПОДКЛЮЧЕНИЯ К БАЗЕ ДАННЫХ!")
+        print("ВНИМАНИЕ: ОШИБКА ИНИЦИАЛИЗАЦИИ БАЗЫ ДАННЫХ!")
         print("-" * 60)
-        print("Сайт будет работать в ограниченном режиме.")
-        print("Пожалуйста, убедитесь, что:")
-        print("1. В pgAdmin создана база данных с именем: dip")
-        print("2. Создан пользователь: diplom с паролем: 7896")
-        print("3. У пользователя diplom есть права на базу dip")
+        print(f"Техническая информация: {e}")
         print("-" * 60)
-        print("Техническая информация об ошибке (может быть нечитаемой на Windows):")
-        try:
-            print(f"Тип ошибки: {type(e).__name__}")
-        except:
-            pass
+        print("Если вы видите ошибку о 'pcs.room', запустите: python fix_database.py")
         print("!"*60 + "\n")
     finally:
         if db:
             db.close()
 
     yield
-    # Shutdown logic (if any)
 
 app = FastAPI(title="Gaming Club", lifespan=lifespan)
 
@@ -129,32 +138,25 @@ async def get_current_user_optional(request: Request, db: Session = Depends(get_
             token = token.split(" ")[1]
         payload = auth.decode_token(token)
         if not payload:
-            print("[DEBUG] Не удалось декодировать токен")
             return None
         username = payload.get("sub")
         user = crud.get_user_by_username(db, username=username)
-        if not user:
-            print(f"[DEBUG] Пользователь {username} не найден в БД")
         return user
-    except Exception as e:
-        print(f"[DEBUG] Ошибка при получении текущего пользователя: {e}")
+    except Exception:
         return None
 
 # API Routes
 @app.get("/debug-db")
 async def debug_db(db: Session = Depends(get_db)):
     try:
-        # Test connection explicitly
         from sqlalchemy import text
         db.execute(text("SELECT 1"))
-
         users = db.query(models.User.username).all()
         pcs_count = db.query(models.PC).count()
         return {
             "status": "connected",
             "users": [u.username for u in users],
-            "pcs_count": pcs_count,
-            "database_url": database.SQLALCHEMY_DATABASE_URL.split("@")[-1] # Show host/db only
+            "pcs_count": pcs_count
         }
     except Exception as e:
         import traceback
@@ -213,7 +215,6 @@ async def profile_page(request: Request, db: Session = Depends(get_db)):
     bookings = crud.get_user_bookings(db, user.id)
     transactions = crud.get_user_transactions(db, user.id)
 
-    # Group PCs by zone and room for the map
     zones = {}
     for pc in pcs:
         zone = pc['category']
