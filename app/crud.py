@@ -85,10 +85,12 @@ def get_user_transactions(db: Session, user_id: int):
     return db.query(models.Transaction).filter(models.Transaction.user_id == user_id).order_by(models.Transaction.timestamp.desc()).all()
 
 def get_current_bookings(db: Session):
+    # Using naive UTC comparison but allowing for a small buffer
+    # and ensuring we are consistent with how start_time is saved.
     now = datetime.utcnow()
     return db.query(models.Booking).filter(
         models.Booking.start_time <= now,
-        models.Booking.end_time >= now
+        models.Booking.end_time > now
     ).all()
 
 def get_pcs_with_status(db: Session):

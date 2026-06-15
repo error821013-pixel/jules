@@ -100,9 +100,9 @@
                                     onclick="selectPC({{ pc.id }}, '{{ pc.name }}', {{ pc.hourly_rate }})"
                                     class="w-10 h-10 rounded flex items-center justify-center font-bold text-xs transition-all
                                     {% if pc.is_occupied %}bg-red-900 text-red-100 cursor-not-allowed opacity-50{% else %}bg-green-900 text-green-100 hover:bg-green-600{% endif %}"
-                                    {% if pc.is_occupied %}disabled title="Занято"{% else %}title="ПК {{ pc.name }} - {{ pc.hourly_rate }} руб/час"{% endif %}
+                                    {% if pc.is_occupied %}disabled title="Занято"{% else %}title="{{ pc.name }} - {{ pc.hourly_rate }} руб/час"{% endif %}
                                 >
-                                    {{ pc.name }}
+                                    {{ loop.index }}
                                 </button>
                                 {% endfor %}
                             </div>
@@ -179,9 +179,12 @@
     }
 
     // Set default start time to now
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('start_time').value = now.toISOString().slice(0, 16);
+    function setNow() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('start_time').value = now.toISOString().slice(0, 16);
+    }
+    setNow();
 
     async function cancelBooking(bookingId) {
         if (!confirm('Вы уверены, что хотите отменить бронирование?')) return;

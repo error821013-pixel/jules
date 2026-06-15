@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, text
 from app import models, auth, schemas, database
 
 def fix():
-    print("--- ЗАПУСК ПОЛНОГО ИСПРАВЛЕНИЯ БАЗЫ ДАННЫХ (46 ПК, нумерация 1-46) ---")
+    print("--- ЗАПУСК ПОЛНОГО ИСПРАВЛЕНИЯ БАЗЫ ДАННЫХ (46 ПК) ---")
 
     db_url = os.getenv("DATABASE_URL", "postgresql://postgres:7896@127.0.0.1:5432/dip")
     engine = create_engine(db_url)
@@ -56,45 +56,41 @@ def fix():
             db.add(admin)
             db.add(gamer)
 
-            print("5. Наполнение клуба компьютерами (46 шт, номера 1-46)...")
-            pc_counter = 1
+            print("5. Наполнение клуба компьютерами (46 шт)...")
 
-            # Standard: 2 rooms x 10 PCs = 20
+            # Standard: 2 rooms x 10 PCs
             for r in range(1, 3):
                 for i in range(1, 11):
                     db.add(models.PC(
-                        name=f"{pc_counter}",
+                        name=f"Standard PC {i} (Room {r})",
                         category="Standard",
                         room=f"Standard Room {r}",
                         hourly_rate=100.0
                     ))
-                    pc_counter += 1
 
-            # VIP: 4 rooms x 5 PCs = 20
+            # VIP: 4 rooms x 5 PCs
             for r in range(1, 5):
                 for i in range(1, 6):
                     db.add(models.PC(
-                        name=f"{pc_counter}",
+                        name=f"VIP PC {i} (Room {r})",
                         category="VIP",
                         room=f"VIP Room {r}",
                         hourly_rate=300.0
                     ))
-                    pc_counter += 1
 
-            # Bootcamp: 2 rooms x 3 PCs = 6
+            # Bootcamp: 2 rooms x 3 PCs
             for r in range(1, 3):
                 for i in range(1, 4):
                     db.add(models.PC(
-                        name=f"{pc_counter}",
+                        name=f"Bootcamp PC {i} (Room {r})",
                         category="Bootcamp",
                         room=f"Bootcamp Room {r}",
                         hourly_rate=500.0
                     ))
-                    pc_counter += 1
 
             db.commit()
             db.close()
-            print(f"   ОК (Добавлено {pc_counter-1} ПК)")
+            print("   ОК (Добавлено 46 ПК)")
 
             print("\n" + "="*30)
             print("ВСЁ ГОТОВО! Теперь запустите сайт и проверьте карту клуба.")
