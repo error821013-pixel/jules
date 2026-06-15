@@ -33,12 +33,28 @@ A full-fledged web application for a computer/gaming club featuring user authent
     If not set, it defaults to `sqlite:///./club.db` for local testing.
 
 3.  **Database Migration (PostgreSQL):**
-    If you are using PostgreSQL, you should run the queries in `schema.sql` to initialize your database tables.
+    The application will automatically create tables and seed initial data upon the first successful connection. You can also manually run the queries in `schema.sql`.
 
 4.  **Run the application:**
     ```bash
-    uvicorn app.main:app --reload
+    python run.py
     ```
+
+## PostgreSQL Setup & Troubleshooting
+
+### How to create the database:
+1.  Open **pgAdmin 4**.
+2.  Right-click on **Databases** -> **Create** -> **Database...**
+3.  Name it: `dip`
+4.  Ensure the owner is `postgres`.
+5.  If you need to reset the password for the `postgres` user to `7896`:
+    -   Right-click on your Server (e.g., "PostgreSQL 16") -> **Properties** -> **Connection**.
+    -   Or use the SQL tool: `ALTER USER postgres WITH PASSWORD '7896';`
+
+### Troubleshooting "Connection Error":
+*   **Windows Encoding:** If you see strange characters in the console, the app is already configured to fix this via environment variables in `run.py`.
+*   **Password:** Double-check that your PostgreSQL password is exactly `7896`. If it's different, you must change it in `app/database.py`.
+*   **Port:** Default is `5432`. If your Postgres is on a different port (e.g., `5433`), update the connection string.
 
 ## Raw SQL Queries (PostgreSQL)
 
@@ -57,6 +73,7 @@ CREATE TABLE pcs (
     id SERIAL PRIMARY KEY,
     name VARCHAR UNIQUE NOT NULL,
     category VARCHAR NOT NULL, -- Standard, VIP, Bootcamp
+    room VARCHAR DEFAULT 'Main',
     hourly_rate FLOAT NOT NULL
 );
 
