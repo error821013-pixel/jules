@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Контакты - Gaming Club{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-12">
+    <section>
+        <h1 class="text-4xl font-black mb-8 border-l-8 border-red-600 pl-6 uppercase">Найти нас</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-red-500 font-bold uppercase tracking-widest text-sm">Адрес</h3>
+                    <p class="text-2xl font-bold">г. Екатеринбург, ул. Белинского, 161/2</p>
+                </div>
+                <div>
+                    <h3 class="text-red-500 font-bold uppercase tracking-widest text-sm">Часы работы</h3>
+                    <p class="text-2xl font-bold text-green-500">ОТКРЫТО 24/7 ВСЕГДА</p>
+                </div>
+                <div>
+                    <h3 class="text-red-500 font-bold uppercase tracking-widest text-sm">Контакты</h3>
+                    <p class="text-xl">Телефон: +7 (993) 509-99-02</p>
+                </div>
+            </div>
+            <div class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800 h-96">
+                <iframe
+                    src="https://yandex.ru/map-widget/v1/?um=constructor%3Af9669532551be8be02996e3924f2b1d64082855f4f8149e29a997d4c82b13098&amp;source=constructor"
+                    width="100%"
+                    height="100%"
+                    frameborder="0"
+                    style="position:relative; filter: grayscale(1) invert(1) hue-rotate(180deg) brightness(0.8);">
+                </iframe>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

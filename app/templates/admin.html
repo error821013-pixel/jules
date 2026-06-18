@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель - Gaming Club{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="flex justify-between items-end">
+        <h1 class="text-4xl font-black uppercase">Админ <span class="gaming-accent">Панель</span></h1>
+        <p class="text-gray-500 font-bold uppercase tracking-widest">{{ now.strftime('%Y-%m-%d') if now else '' }}</p>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+            <p class="text-gray-500 text-xs uppercase font-bold mb-1">Общая выручка</p>
+            <p class="text-4xl font-black text-green-500">{{ "%.2f"|format(stats.total_revenue) }} руб.</p>
+        </div>
+        <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+            <p class="text-gray-500 text-xs uppercase font-bold mb-1">Средний чек</p>
+            <p class="text-4xl font-black text-red-500">{{ "%.2f"|format(stats.average_check) }} руб.</p>
+        </div>
+        <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+            <p class="text-gray-500 text-xs uppercase font-bold mb-1">Активные брони</p>
+            <p class="text-4xl font-black text-white">{{ stats.current_bookings_count }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Current Bookings Table -->
+        <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+            <h2 class="text-2xl font-black mb-4 uppercase">Занятые <span class="gaming-accent">ПК</span></h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-gray-800 text-gray-500 text-xs uppercase">
+                            <th class="pb-2">ПК</th>
+                            <th class="pb-2">Пользователь</th>
+                            <th class="pb-2">Конец сессии</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        {% for b in current_bookings %}
+                        <tr class="border-b border-gray-800">
+                            <td class="py-3 font-bold">{{ b.pc.name }}</td>
+                            <td class="py-3">{{ b.user.username }}</td>
+                            <td class="py-3 text-red-500">{{ b.end_time.strftime('%H:%M') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="py-4 text-center text-gray-600 italic">Нет активных сессий</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PC Management -->
+        <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+            <h2 class="text-2xl font-black mb-4 uppercase">Управление <span class="gaming-accent">ПК</span></h2>
+            <form id="addPcForm" class="space-y-4 mb-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="pcName" placeholder="Название ПК" required class="bg-black border border-gray-700 rounded px-3 py-2 outline-none focus:border-red-600">
+                    <input type="text" id="pcCategory" placeholder="Категория" required class="bg-black border border-gray-700 rounded px-3 py-2 outline-none focus:border-red-600">
+                </div>
+                <div class="flex space-x-4">
+                    <input type="number" id="pcRate" placeholder="Цена в час" step="0.01" required class="flex-1 bg-black border border-gray-700 rounded px-3 py-2 outline-none focus:border-red-600">
+                    <button type="submit" class="btn-primary">Добавить ПК</button>
+                </div>
+            </form>
+
+            <div class="max-h-64 overflow-y-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-gray-800 text-gray-500 text-xs uppercase">
+                            <th class="pb-2">ПК</th>
+                            <th class="pb-2">Категория</th>
+                            <th class="pb-2">Цена</th>
+                            <th class="pb-2">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pcListBody" class="text-sm">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Attendance Analytics Placeholder -->
+        <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+            <h2 class="text-2xl font-black mb-4 uppercase">Аналитика <span class="gaming-accent">посещаемости</span></h2>
+            <div class="h-64 flex items-end justify-between space-x-2 pt-4">
+                {% for i in range(7) %}
+                <div class="bg-red-600 w-full" style="height: {{ [20, 40, 30, 80, 60, 90, 50][i] }}%;"></div>
+                {% endfor %}
+            </div>
+            <div class="flex justify-between mt-2 text-[10px] text-gray-500 uppercase font-bold">
+                <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function loadPcs() {
+        const response = await fetch('/pcs/');
+        const pcs = await response.json();
+        const body = document.getElementById('pcListBody');
+        body.innerHTML = '';
+        pcs.forEach(pc => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-gray-800';
+            tr.innerHTML = \`
+                <td class="py-2 font-bold">\${pc.name}</td>
+                <td class="py-2">\${pc.category}</td>
+                <td class="py-2">\${pc.hourly_rate} руб.</td>
+                <td class="py-2">
+                    <button onclick="deletePc(\${pc.id})" class="text-red-500 hover:underline">Удалить</button>
+                </td>
+            \`;
+            body.appendChild(tr);
+        });
+    }
+
+    document.getElementById('addPcForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('pcName').value;
+        const category = document.getElementById('pcCategory').value;
+        const hourly_rate = parseFloat(document.getElementById('pcRate').value);
+
+        const response = await fetch('/pcs/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, category, hourly_rate })
+        });
+
+        if (response.ok) {
+            document.getElementById('addPcForm').reset();
+            loadPcs();
+        } else {
+            alert('Ошибка при добавлении ПК');
+        }
+    };
+
+    async function deletePc(pcId) {
+        if (!confirm('Вы уверены?')) return;
+        const response = await fetch(\`/pcs/\${pcId}\`, {
+            method: 'DELETE'
+        });
+        if (response.ok) {
+            loadPcs();
+        } else {
+            alert('Ошибка при удалении ПК');
+        }
+    }
+
+    loadPcs();
+</script>
+{% endblock %}
