@@ -51,7 +51,12 @@ A full-fledged web application for a computer/gaming club featuring user authent
     -   Right-click on your Server (e.g., "PostgreSQL 16") -> **Properties** -> **Connection**.
     -   Or use the SQL tool: `ALTER USER postgres WITH PASSWORD '7896';`
 
-### Troubleshooting "Connection Error":
+### Troubleshooting:
+
+*   **Bcrypt Error (`AttributeError: module 'bcrypt' has no attribute '__about__'`):**
+    This is a compatibility issue between `passlib` and newer versions of `bcrypt`.
+    **Solution:** Run `pip install bcrypt==4.0.1` and restart the server.
+
 *   **Windows Encoding:** If you see strange characters in the console, the app is already configured to fix this via environment variables in `run.py`.
 *   **Password:** Double-check that your PostgreSQL password is exactly `7896`. If it's different, you must change it in `app/database.py`.
 *   **Port:** Default is `5432`. If your Postgres is on a different port (e.g., `5433`), update the connection string.
