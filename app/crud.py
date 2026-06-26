@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from . import models, schemas, auth
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import func, or_, and_
 
 def get_user_by_username(db: Session, username: str):
@@ -87,7 +87,7 @@ def get_user_transactions(db: Session, user_id: int):
 def get_current_bookings(db: Session):
     # Using naive UTC comparison but allowing for a small buffer
     # and ensuring we are consistent with how start_time is saved.
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     return db.query(models.Booking).filter(
         models.Booking.start_time <= now,
         models.Booking.end_time > now

@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 from . import models, schemas, crud, auth, database
@@ -263,7 +263,7 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
         "user": user,
         "stats": stats,
         "current_bookings": current_bookings,
-        "now": datetime.utcnow()
+        "now": datetime.now(timezone.utc).replace(tzinfo=None)
     })
 
 @app.get("/pcs/", response_model=List[schemas.PC])
